@@ -1461,11 +1461,11 @@ public class Resource implements Serializable {
     }
 
     public <L extends Layer> L layer(Class<L> cl) {
-        used = true;
-        for (Layer l : layers) {
-            if (cl.isInstance(l))
-                return (cl.cast(l));
-        }
+		used = true;
+		for(Layer l : layers) {
+			if(cl.isInstance(l))
+			return(cl.cast(l));
+		}
         return (null);
     }
 
@@ -1543,7 +1543,7 @@ public class Resource implements Serializable {
     }
 
     public static Tex loadtex(String name) {
-        return (local().loadwait(name).layer(imgc).tex());
+		return (local().loadwait(name).layer(imgc).tex());
     }
 
     public String toString() {

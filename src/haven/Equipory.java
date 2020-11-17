@@ -57,6 +57,8 @@ public class Equipory extends Widget implements DTarget {
             new Coord(0, 231),
             new Coord(rx, 231),
             new Coord(34, 0),
+			new Coord(rx, 0),
+			new Coord(rx, 0),
     };
     public static final Tex[] ebgs = new Tex[ecoords.length];
     public static final Text[] etts = new Text[ecoords.length];
@@ -72,11 +74,13 @@ public class Equipory extends Widget implements DTarget {
         }
         for(int i = 0; i < ebgs.length; i++) {
             Resource bgres = Resource.local().loadwait("gfx/hud/equip/ep" + i);
-            Resource.Image img = bgres.layer(Resource.imgc);
-            if(img != null) {
-                ebgs[i] = bgres.layer(Resource.imgc).tex();
-                etts[i] = Text.render(bgres.layer(Resource.tooltip).t);
-            }
+			if(bgres!=null){
+				Resource.Image img = bgres.layer(Resource.imgc);
+				if(img != null) {
+					ebgs[i] = bgres.layer(Resource.imgc).tex();
+					etts[i] = Text.render(bgres.layer(Resource.tooltip).t);
+				}
+			}
         }
     }
 
