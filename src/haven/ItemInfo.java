@@ -73,35 +73,38 @@ public abstract class ItemInfo {
     @Resource.PublishedCode(name = "tt", instancer = FactMaker.class)
     public static interface InfoFactory {
         public default ItemInfo build(Owner owner, Raw raw, Object... args) {
-            return(build(owner, args));
+            return (build(owner, args));
         }
+
         @Deprecated
         public default ItemInfo build(Owner owner, Object... args) {
-            throw(new AbstractMethodError("info factory missing either build bmethod"));
+            throw (new AbstractMethodError("info factory missing either build bmethod"));
         }
     }
 
     public static class FactMaker implements Resource.PublishedCode.Instancer {
-        public InfoFactory make(Class<?> cl) throws InstantiationException, IllegalAccessException {
-            if(InfoFactory.class.isAssignableFrom(cl))
-                return(cl.asSubclass(InfoFactory.class).newInstance());
+        public InfoFactory make(Class<?> cl) {
+            if (InfoFactory.class.isAssignableFrom(cl))
+                return (Utils.construct(cl.asSubclass(InfoFactory.class)));
             try {
                 Function<Object[], ItemInfo> make = Utils.smthfun(cl, "mkinfo", ItemInfo.class, Owner.class, Object[].class);
-                return(new InfoFactory() {
+                return (new InfoFactory() {
                     public ItemInfo build(Owner owner, Raw raw, Object... args) {
-                        return(make.apply(new Object[]{owner, args}));
+                        return (make.apply(new Object[]{owner, args}));
                     }
                 });
-            } catch(NoSuchMethodException e) {}
+            } catch (NoSuchMethodException e) {
+            }
             try {
                 Function<Object[], ItemInfo> make = Utils.smthfun(cl, "mkinfo", ItemInfo.class, Owner.class, Raw.class, Object[].class);
-                return(new InfoFactory() {
+                return (new InfoFactory() {
                     public ItemInfo build(Owner owner, Raw raw, Object... args) {
-                        return(make.apply(new Object[]{owner, raw, args}));
+                        return (make.apply(new Object[]{owner, raw, args}));
                     }
                 });
-            } catch(NoSuchMethodException e) {}
-            return(null);
+            } catch (NoSuchMethodException e) {
+            }
+            return (null);
         }
     }
 
@@ -401,10 +404,10 @@ public abstract class ItemInfo {
 
     public static List<ItemInfo> buildinfo(Owner owner, Raw raw) {
         List<ItemInfo> ret = new ArrayList<ItemInfo>();
-        for(Object o : raw.data) {
+        for (Object o : raw.data) {
             if (o instanceof Object[]) {
                 Object[] a = (Object[]) o;
-                Resource ttres= null;
+                Resource ttres = null;
                 InfoFactory f = null;
                 if (a[0] instanceof Integer) {
                     ttres = owner.glob().sess.getres((Integer) a[0]).get();
@@ -437,7 +440,7 @@ public abstract class ItemInfo {
     }
 
     public static List<ItemInfo> buildinfo(Owner owner, Object[] rawinfo) {
-        return(buildinfo(owner, new Raw(rawinfo)));
+        return (buildinfo(owner, new Raw(rawinfo)));
     }
 
     private static String dump(Object arg) {
@@ -483,21 +486,21 @@ public abstract class ItemInfo {
         }
 
         public static <I, R> Function<List<ItemInfo>, Supplier<R>> map1(Class<I> icl, Function<I, Supplier<R>> data) {
-            return(info -> {
+            return (info -> {
                 I inf = find(icl, info);
-                if(inf == null)
-                    return(() -> null);
-                return(data.apply(inf));
+                if (inf == null)
+                    return (() -> null);
+                return (data.apply(inf));
             });
         }
 
         public static <I, R> Function<List<ItemInfo>, Supplier<R>> map1s(Class<I> icl, Function<I, R> data) {
-            return(info -> {
+            return (info -> {
                 I inf = find(icl, info);
-                if(inf == null)
-                    return(() -> null);
+                if (inf == null)
+                    return (() -> null);
                 R ret = data.apply(inf);
-                return(() -> ret);
+                return (() -> ret);
             });
         }
     }

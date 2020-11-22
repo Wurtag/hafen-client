@@ -29,13 +29,48 @@ package haven;
 import haven.res.ui.tt.q.qbuff.QBuff;
 
 import java.util.*;
+import java.awt.image.WritableRaster;
 
 public class Inventory extends Widget implements DTarget {
-    public static final Tex invsq = Resource.loadtex("gfx/hud/invsq");
     public static final Coord sqsz = new Coord(33, 33);
+    public static final Tex invsq;
     public boolean dropul = true;
     public Coord isz;
     Map<GItem, WItem> wmap = new HashMap<GItem, WItem>();
+
+    static {
+        Coord sz = sqsz.add(1, 1);
+        WritableRaster buf = PUtils.imgraster(sz);
+        for (int i = 1, y = sz.y - 1; i < sz.x - 1; i++) {
+            buf.setSample(i, 0, 0, 20);
+            buf.setSample(i, 0, 1, 28);
+            buf.setSample(i, 0, 2, 21);
+            buf.setSample(i, 0, 3, 167);
+            buf.setSample(i, y, 0, 20);
+            buf.setSample(i, y, 1, 28);
+            buf.setSample(i, y, 2, 21);
+            buf.setSample(i, y, 3, 167);
+        }
+        for (int i = 1, x = sz.x - 1; i < sz.y - 1; i++) {
+            buf.setSample(0, i, 0, 20);
+            buf.setSample(0, i, 1, 28);
+            buf.setSample(0, i, 2, 21);
+            buf.setSample(0, i, 3, 167);
+            buf.setSample(x, i, 0, 20);
+            buf.setSample(x, i, 1, 28);
+            buf.setSample(x, i, 2, 21);
+            buf.setSample(x, i, 3, 167);
+        }
+        for (int y = 1; y < sz.y - 1; y++) {
+            for (int x = 1; x < sz.x - 1; x++) {
+                buf.setSample(x, y, 0, 36);
+                buf.setSample(x, y, 1, 52);
+                buf.setSample(x, y, 2, 38);
+                buf.setSample(x, y, 3, 125);
+            }
+        }
+        invsq = new TexI(PUtils.rasterimg(buf));
+    }
 
     @RName("inv")
     public static class $_ implements Factory {
@@ -92,7 +127,7 @@ public class Inventory extends Widget implements DTarget {
     public boolean drop(Coord cc, Coord ul) {
         Coord dc = dropul ? ul.add(sqsz.div(2)).div(sqsz) : cc.div(sqsz);
         wdgmsg("drop", dc);
-        return(true);
+        return (true);
     }
 
     public boolean iteminteract(Coord cc, Coord ul) {
@@ -103,8 +138,8 @@ public class Inventory extends Widget implements DTarget {
         if (msg == "sz") {
             isz = (Coord) args[0];
             resize(invsq.sz().add(new Coord(-1, -1)).mul(isz).add(new Coord(1, 1)));
-        } else if(msg == "mode") {
-            dropul = (((Integer)args[0]) == 0);
+        } else if (msg == "mode") {
+            dropul = (((Integer) args[0]) == 0);
         } else {
             super.uimsg(msg, args);
         }
@@ -112,10 +147,10 @@ public class Inventory extends Widget implements DTarget {
 
     @Override
     public void wdgmsg(Widget sender, String msg, Object... args) {
-        if(msg.equals("drop-identical")) {
+        if (msg.equals("drop-identical")) {
             for (WItem item : getIdenticalItems((GItem) args[0], false))
                 item.item.wdgmsg("drop", Coord.z);
-        } else if(msg.startsWith("transfer-identical")) {
+        } else if (msg.startsWith("transfer-identical")) {
             boolean eq = msg.endsWith("eq");
             List<WItem> items = getIdenticalItems((GItem) args[0], eq);
             if (!eq) {
@@ -204,7 +239,7 @@ public class Inventory extends Widget implements DTarget {
         List<WItem> items = new ArrayList<WItem>();
         for (Widget wdg = child; wdg != null; wdg = wdg.next) {
             if (wdg instanceof WItem) {
-                String wdgname = ((WItem)wdg).item.getname();
+                String wdgname = ((WItem) wdg).item.getname();
                 for (String name : names) {
                     if (wdgname.contains(name)) {
                         items.add((WItem) wdg);
@@ -219,7 +254,7 @@ public class Inventory extends Widget implements DTarget {
     public WItem getItemPartial(String name) {
         for (Widget wdg = child; wdg != null; wdg = wdg.next) {
             if (wdg instanceof WItem) {
-                String wdgname = ((WItem)wdg).item.getname();
+                String wdgname = ((WItem) wdg).item.getname();
                 if (wdgname.contains(name))
                     return (WItem) wdg;
             }
@@ -231,7 +266,7 @@ public class Inventory extends Widget implements DTarget {
         int count = 0;
         for (Widget wdg = child; wdg != null; wdg = wdg.next) {
             if (wdg instanceof WItem) {
-                String wdgname = ((WItem)wdg).item.getname();
+                String wdgname = ((WItem) wdg).item.getname();
                 if (wdgname.contains(name))
                     count++;
             }

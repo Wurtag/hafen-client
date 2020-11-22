@@ -95,7 +95,7 @@ public class Resource implements Serializable {
         }
 
         public String toString() {
-            return(String.format("#<res-name %s v%d>", name, ver));
+            return (String.format("#<res-name %s v%d>", name, ver));
         }
     }
 
@@ -121,7 +121,7 @@ public class Resource implements Serializable {
     }
 
     public static interface Resolver {
-	    public Indir<Resource> getres(int id);
+        public Indir<Resource> getres(int id);
 
         public class ResourceMap implements Resource.Resolver {
             public final Resource.Resolver bk;
@@ -141,30 +141,30 @@ public class Resource implements Serializable {
             }
 
             public static Map<Integer, Integer> decode(Message sdt) {
-                if(sdt.eom())
-                    return(Collections.emptyMap());
+                if (sdt.eom())
+                    return (Collections.emptyMap());
                 int n = sdt.uint8();
                 Map<Integer, Integer> ret = new HashMap<>();
-                for(int i = 0; i < n; i++)
+                for (int i = 0; i < n; i++)
                     ret.put(sdt.uint16(), sdt.uint16());
-                return(ret);
+                return (ret);
             }
 
             public static Map<Integer, Integer> decode(Object[] args) {
-                if(args.length == 0)
-                    return(Collections.emptyMap());
+                if (args.length == 0)
+                    return (Collections.emptyMap());
                 Map<Integer, Integer> ret = new HashMap<>();
-                for(int a = 0; a < args.length; a += 2)
-                    ret.put((Integer)args[a], (Integer)args[a + 1]);
-                return(ret);
+                for (int a = 0; a < args.length; a += 2)
+                    ret.put((Integer) args[a], (Integer) args[a + 1]);
+                return (ret);
             }
 
             public Indir<Resource> getres(int id) {
-                return(bk.getres(map.get(id)));
+                return (bk.getres(map.get(id)));
             }
 
             public String toString() {
-                return(map.toString());
+                return (map.toString());
             }
         }
     }
@@ -251,9 +251,8 @@ public class Resource implements Serializable {
     public static class JarSource implements ResSource, Serializable {
         public InputStream get(String name) throws FileNotFoundException {
             InputStream s = Resource.class.getResourceAsStream("/res/" + name + ".res");
-            if (s == null){
-				throw (new FileNotFoundException("Could not find resource locally: " + name));
-			}
+            if (s == null)
+                throw (new FileNotFoundException("Could not find resource locally: " + name));
             return (s);
         }
 
@@ -269,7 +268,7 @@ public class Resource implements Serializable {
         {
             ssl = new SslHelper();
             try {
-                ssl.trust(ssl.loadX509(Resource.class.getResourceAsStream("ressrv.crt")));
+                ssl.trust(Resource.class.getResourceAsStream("ressrv.crt"));
             } catch (java.security.cert.CertificateException e) {
                 throw (new Error("Invalid built-in certificate", e));
             } catch (IOException e) {
@@ -283,8 +282,8 @@ public class Resource implements Serializable {
         }
 
         private URL encodeurl(URL raw) throws IOException {
-        /* This is "kinda" ugly. It is, actually, how the Java
-         * documentation recommend that it be done, though... */
+            /* This is "kinda" ugly. It is, actually, how the Java
+             * documentation recommend that it be done, though... */
             try {
                 return (new URL(new URI(raw.getProtocol(), raw.getHost(), raw.getPath(), raw.getRef()).toASCIIString()));
             } catch (URISyntaxException e) {
@@ -302,9 +301,9 @@ public class Resource implements Serializable {
                         c = ssl.connect(resurl);
                     else
                         c = resurl.openConnection();
-            /* Apparently, some versions of Java Web Start has
-		     * a bug in its internal cache where it refuses to
-		     * reload a URL even when it has changed. */
+                    /* Apparently, some versions of Java Web Start has
+                     * a bug in its internal cache where it refuses to
+                     * reload a URL even when it has changed. */
                     c.setUseCaches(false);
                     c.addRequestProperty("User-Agent", "Haven/1.0");
                     return (c.getInputStream());
@@ -402,9 +401,8 @@ public class Resource implements Serializable {
                     boostprio(1);
                     throw (new Loading(this));
                 }
-                if (error != null){
+                //if (error != null)
                     //throw (new RuntimeException("Delayed error in resource " + name + " (v" + ver + "), from " + error.src, error));
-				}
                 return (res);
             }
 
@@ -442,7 +440,7 @@ public class Resource implements Serializable {
             }
 
             public String toString() {
-                return(String.format("<q:%s(v%d)>", name, ver));
+                return (String.format("<q:%s(v%d)>", name, ver));
             }
         }
 
@@ -467,7 +465,7 @@ public class Resource implements Serializable {
                     else
                         error = new LoadException(String.format("Load error in resource %s(v%d), from %s", res.name, res.ver, src), t, null);
                     error.src = src;
-                    if(res.error != null) {
+                    if (res.error != null) {
                         error.prev = res.error;
                         error.addSuppressed(res.error);
                     }
@@ -485,33 +483,33 @@ public class Resource implements Serializable {
                     if ((ver == -1) || (cur.ver == ver)) {
                         return (cur.indir());
                     } else if (ver < cur.ver) {
-			/* Throw LoadException rather than
-			 * RuntimeException here, to make sure
-			 * obsolete resources doing nested loading get
-			 * properly handled. This could be the wrong
-			 * way of going about it, however; I'm not
-			 * sure. */
+                        /* Throw LoadException rather than
+                         * RuntimeException here, to make sure
+                         * obsolete resources doing nested loading get
+                         * properly handled. This could be the wrong
+                         * way of going about it, however; I'm not
+                         * sure. */
                         throw (new LoadException(String.format("Weird version number on %s (%d > %d), loaded from %s", cur.name, cur.ver, ver, cur.source), cur));
                     }
                 }
                 synchronized (queue) {
                     Queued cq = queued.get(name);
                     if (cq != null) {
-			if(ver != -1) {
-			    if(ver < cq.ver) {
-				throw(new LoadException(String.format("Weird version number on %s (%d > %d)", cq.name, cq.ver, ver), null));
-			    } else if(ver == cq.ver) {
-				cq.boostprio(prio);
-				return(cq);
-			    }
-			} else {
-			    if(cq.done && (cq.error != null)) {
-				/* XXX: This is probably not the right way to handle this. */
-			    } else {
-				cq.boostprio(prio);
-				return(cq);
-			    }
-			}
+                        if (ver != -1) {
+                            if (ver < cq.ver) {
+                                throw (new LoadException(String.format("Weird version number on %s (%d > %d)", cq.name, cq.ver, ver), null));
+                            } else if (ver == cq.ver) {
+                                cq.boostprio(prio);
+                                return (cq);
+                            }
+                        } else {
+                            if (cq.done && (cq.error != null)) {
+                                /* XXX: This is probably not the right way to handle this. */
+                            } else {
+                                cq.boostprio(prio);
+                                return (cq);
+                            }
+                        }
                         queued.remove(name);
                         queue.removeid(cq);
                     }
@@ -696,23 +694,23 @@ public class Resource implements Serializable {
     private static Pool _local = null;
 
     public static Pool local() {
-	if(_local == null) {
-	    synchronized(Resource.class) {
-		if(_local == null) {
-		    Pool local = new Pool(new JarSource());
-		    try {
-			if(Config.resdir != null)
-			    local.add(new FileSource(new File(Config.resdir)));
-		    } catch(Exception e) {
-			/* Ignore these. We don't want to be crashing the client
-			 * for users just because of errors in development
-			 * aids. */
-		    }
-		    _local = local;
-		}
-	    }
-	}
-	return(_local);
+        if (_local == null) {
+            synchronized (Resource.class) {
+                if (_local == null) {
+                    Pool local = new Pool(new JarSource());
+                    try {
+                        if (Config.resdir != null)
+                            local.add(new FileSource(new File(Config.resdir)));
+                    } catch (Exception e) {
+                        /* Ignore these. We don't want to be crashing the client
+                         * for users just because of errors in development
+                         * aids. */
+                    }
+                    _local = local;
+                }
+            }
+        }
+        return (_local);
     }
 
     private static Pool _remote = null;
@@ -845,7 +843,7 @@ public class Resource implements Serializable {
     }
 
     static {
-        l10nBundleMap =  new HashMap<String, Map<String, String>>(9) {{
+        l10nBundleMap = new HashMap<String, Map<String, String>>(9) {{
             if (!language.equals("en") || Resource.L10N_DEBUG) {
                 put(BUNDLE_TOOLTIP, l10n(BUNDLE_TOOLTIP, language));
                 put(BUNDLE_PAGINA, l10n(BUNDLE_PAGINA, language));
@@ -862,13 +860,7 @@ public class Resource implements Serializable {
         for (Class<?> cl : dolda.jglob.Loader.get(LayerName.class).classes()) {
             String nm = cl.getAnnotation(LayerName.class).value();
             if (LayerFactory.class.isAssignableFrom(cl)) {
-                try {
-                    addltype(nm, cl.asSubclass(LayerFactory.class).newInstance());
-                } catch (InstantiationException e) {
-                    throw (new Error(e));
-                } catch (IllegalAccessException e) {
-                    throw (new Error(e));
-                }
+                addltype(nm, Utils.construct(cl.asSubclass(LayerFactory.class)));
             } else if (Layer.class.isAssignableFrom(cl)) {
                 addltype(nm, cl.asSubclass(Layer.class));
             } else {
@@ -917,17 +909,30 @@ public class Resource implements Serializable {
         public final boolean nooff;
         public final int id;
         private int gay = -1;
-        public Coord sz;
-        public Coord o;
+        public Coord sz, o, tsz;
 
         public Image(Message buf) {
             z = buf.int16();
             subz = buf.int16();
             int fl = buf.uint8();
-	    /* Obsolete flag 1: Layered */
+            /* Obsolete flag 1: Layered */
             nooff = (fl & 2) != 0;
             id = buf.int16();
             o = cdec(buf);
+            if ((fl & 4) != 0) {
+                while (true) {
+                    String key = buf.string();
+                    if (key.equals(""))
+                        break;
+                    int len = buf.uint8();
+                    if ((len & 0x80) != 0)
+                        len = buf.int32();
+                    Message val = new MessageBuf(buf.bytes(len));
+                    if (key.equals("tsz")) {
+                        tsz = val.coord();
+                    }
+                }
+            }
             try {
                 img = ImageIO.read(new MessageInputStream(buf));
             } catch (IOException e) {
@@ -936,6 +941,8 @@ public class Resource implements Serializable {
             if (img == null)
                 throw (new LoadException("Invalid image data in " + name, Resource.this));
             sz = Utils.imgsz(img);
+            if (tsz == null)
+                tsz = sz;
         }
 
         public synchronized Tex tex() {
@@ -1117,7 +1124,7 @@ public class Resource implements Serializable {
         Class<? extends Instancer> instancer() default Instancer.class;
 
         public interface Instancer {
-            public Object make(Class<?> cl) throws InstantiationException, IllegalAccessException;
+            public Object make(Class<?> cl);
         }
     }
 
@@ -1152,7 +1159,7 @@ public class Resource implements Serializable {
     ;
 
     public static Resource classres(final Class<?> cl) {
-        return(AccessController.doPrivileged(new PrivilegedAction<Resource>() {
+        return (AccessController.doPrivileged(new PrivilegedAction<Resource>() {
             public Resource run() {
                 ClassLoader l = cl.getClassLoader();
                 if (l instanceof ResClassLoader)
@@ -1188,6 +1195,17 @@ public class Resource implements Serializable {
                 }
             }
             throw (new ClassNotFoundException("Could not find " + name + " in any of " + Arrays.asList(classpath).toString()));
+        }
+    }
+
+    public static class ResourceClassNotFoundException extends ClassNotFoundException {
+        public final String clname;
+        public final Resource res;
+
+        public ResourceClassNotFoundException(String clname, Resource res) {
+            super(String.format("Could not find class %s in resource %s", clname, res));
+            this.clname = clname;
+            this.res = res;
         }
     }
 
@@ -1249,7 +1267,7 @@ public class Resource implements Serializable {
                                     public Class<?> findClass(String name) throws ClassNotFoundException {
                                         Code c = clmap.get(name);
                                         if (c == null)
-                                            throw (new ClassNotFoundException("Could not find class " + name + " in resource (" + Resource.this + ")"));
+                                            throw (new ResourceClassNotFoundException(name, Resource.this));
                                         return (defineClass(name, c.data, 0, c.data.length));
                                     }
                                 };
@@ -1321,16 +1339,10 @@ public class Resource implements Serializable {
                 } else {
                     T inst;
                     Object rinst = AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                        try {
-                            if (entry.instancer() != PublishedCode.Instancer.class)
-                                return (entry.instancer().newInstance().make(acl));
-                            else
-                                return (acl.newInstance());
-                        } catch (IllegalAccessException e) {
-                            throw (new RuntimeException(e));
-                        } catch (InstantiationException e) {
-                            throw (new RuntimeException(e));
-                        }
+                        if (entry.instancer() != PublishedCode.Instancer.class)
+                            return (Utils.construct(entry.instancer()).make(acl));
+                        else
+                            return (Utils.construct(acl));
                     });
                     try {
                         inst = cl.cast(rinst);
@@ -1453,19 +1465,19 @@ public class Resource implements Serializable {
 
     public <L extends Layer> Collection<L> layers(final Class<L> cl) {
         used = true;
-        return(new DefaultCollection<L>() {
+        return (new DefaultCollection<L>() {
             public Iterator<L> iterator() {
-                return(Utils.filter(layers.iterator(), cl));
+                return (Utils.filter(layers.iterator(), cl));
             }
         });
     }
 
     public <L extends Layer> L layer(Class<L> cl) {
-		used = true;
-		for(Layer l : layers) {
-			if(cl.isInstance(l))
-			return(cl.cast(l));
-		}
+        used = true;
+        for (Layer l : layers) {
+            if (cl.isInstance(l))
+                return (cl.cast(l));
+        }
         return (null);
     }
 
@@ -1543,7 +1555,7 @@ public class Resource implements Serializable {
     }
 
     public static Tex loadtex(String name) {
-		return (local().loadwait(name).layer(imgc).tex());
+        return (local().loadwait(name).layer(imgc).tex());
     }
 
     public String toString() {
@@ -1797,9 +1809,9 @@ public class Resource implements Serializable {
 
             if (bundle.equals(BUNDLE_TOOLTIP) &&
                     (key.startsWith("paginae/act") || key.startsWith("paginae/bld")
-                    || key.startsWith("paginae/craft") || key.startsWith("paginae/gov")
-                    || key.startsWith("paginae/pose") || key.startsWith("paginae/amber")
-                    || key.startsWith("paginae/atk/ashoot") || key.startsWith("paginae/seid")))
+                            || key.startsWith("paginae/craft") || key.startsWith("paginae/gov")
+                            || key.startsWith("paginae/pose") || key.startsWith("paginae/amber")
+                            || key.startsWith("paginae/atk/ashoot") || key.startsWith("paginae/seid")))
                 return;
 
             if (key == null || key.equals("") || val.equals(""))
@@ -1813,7 +1825,7 @@ public class Resource implements Serializable {
                     key.startsWith("Born to ") ||
                     key.equals("ui/r-enact"))
                 return;
-            
+
             if (bundle == BUNDLE_LABEL) {
                 for (String s : fmtLocStringsLabel) {
                     if (fmtLocString(map, key, s) != null)

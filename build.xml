@@ -89,13 +89,13 @@
   </target>
 
  <target name="dist" depends="rebuild">
-    <zip destfile="${basedir}/${name}-${version}.zip" update="false">
+    <zip destfile="${basedir}/${name}-${version}.zip" update="false" zip64Mode="always">
         <fileset dir="build" includes="*.jar,grid_ids.txt" excludes="*natives*.jar"/>
         <fileset dir="${basedir}" includes="README, CHANGELOG"/>
         <fileset dir="lib/jogl-natives" includes="*.jar"/>
         <fileset dir="etc" includes="*.bat,run.sh,run.command"/>
     </zip>
-    <zip destfile="${basedir}/${name}-${version}-upd.zip" update="false">
+    <zip destfile="${basedir}/${name}-${version}-upd.zip" update="false" zip64Mode="always">
         <fileset dir="build" includes="amber-res.jar, hafen.jar, l10n.jar, builtin-res.jar, grid_ids.txt" />
         <fileset dir="${basedir}" includes="CHANGELOG"/>
     </zip>

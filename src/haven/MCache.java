@@ -56,11 +56,11 @@ public class MCache {
     public static class LoadingMap extends Loading {
         public final Coord gc;
 
-        public LoadingMap(Coord gc)
-        {
+        public LoadingMap(Coord gc) {
             super("Waiting for map data...");
             this.gc = gc;
         }
+
         public LoadingMap(Loading cause) {
             super(cause);
             this.gc = null;
@@ -108,7 +108,7 @@ public class MCache {
 
     public class Grid {
         public final int tiles[] = new int[cmaps.x * cmaps.y];
-        public final int z[] = new int[cmaps.x * cmaps.y];
+        public final float z[] = new float[cmaps.x * cmaps.y];
         public final int ol[] = new int[cmaps.x * cmaps.y];
         public final Coord gc, ul;
         public long id;
@@ -151,7 +151,7 @@ public class MCache {
             public void setup(RenderList rl) {
                 try {
                     init();
-                } catch(Loading e) {
+                } catch (Loading e) {
                     return;
                 }
                 rl.add(spr, extra);
@@ -170,7 +170,7 @@ public class MCache {
             return (tiles[tc.x + (tc.y * cmaps.x)]);
         }
 
-        public int getz(Coord tc) {
+        public double getz(Coord tc) {
             return (z[tc.x + (tc.y * cmaps.x)]);
         }
 
@@ -184,42 +184,42 @@ public class MCache {
             if (t != snowTileId)
                 return t;
             if (tc.x > 0) {
-                t = tiles[i-1];
+                t = tiles[i - 1];
                 if (t != snowTileId)
                     return t;
             }
-            if (tc.x < cmaps.x-1) {
-                t = tiles[i+1];
+            if (tc.x < cmaps.x - 1) {
+                t = tiles[i + 1];
                 if (t != snowTileId)
                     return t;
             }
             if (tc.y > 0) {
-                t = tiles[i-cmaps.x];
+                t = tiles[i - cmaps.x];
                 if (t != snowTileId)
                     return t;
             }
-            if (tc.y < cmaps.y-1) {
-                t = tiles[i+cmaps.x];
+            if (tc.y < cmaps.y - 1) {
+                t = tiles[i + cmaps.x];
                 if (t != snowTileId)
                     return t;
             }
             if (tc.x > 0 && tc.y > 0) {
-                t = tiles[i-1-cmaps.x];
+                t = tiles[i - 1 - cmaps.x];
                 if (t != snowTileId)
                     return t;
             }
-            if (tc.x < cmaps.x-1 && tc.y > 0) {
-                t = tiles[i+1-cmaps.x];
+            if (tc.x < cmaps.x - 1 && tc.y > 0) {
+                t = tiles[i + 1 - cmaps.x];
                 if (t != snowTileId)
                     return t;
             }
-            if (tc.x > 0 && tc.y < cmaps.y-1) {
-                t = tiles[i-1+cmaps.x];
+            if (tc.x > 0 && tc.y < cmaps.y - 1) {
+                t = tiles[i - 1 + cmaps.x];
                 if (t != snowTileId)
                     return t;
             }
-            if (tc.x < cmaps.x-1 && tc.y < cmaps.y-1) {
-                t = tiles[i+1+cmaps.x];
+            if (tc.x < cmaps.x - 1 && tc.y < cmaps.y - 1) {
+                t = tiles[i + 1 + cmaps.x];
                 if (t != snowTileId)
                     return t;
             }
@@ -413,7 +413,7 @@ public class MCache {
                     nilTileId = tileid;
                 }
                 if (resnm.equals("gfx/tiles/snow")) {
-                    snowTileId  = tileid;
+                    snowTileId = tileid;
                 }
                 nsets[tileid] = new Resource.Spec(Resource.remote(), resnm, resver);
             }
@@ -465,12 +465,12 @@ public class MCache {
                         ol = 8;
                     else
                         ol = 4;
-                } else if(type == 2) {
-                    if((fl & 1) == 1)
+                } else if (type == 2) {
+                    if ((fl & 1) == 1)
                         ol = 32;
                     else
                         ol = 16;
-                } else if(type == 3) {
+                } else if (type == 3) {
                     ol = 64;
                 } else {
                     throw (new RuntimeException("Unknown plot type " + type));
@@ -482,7 +482,7 @@ public class MCache {
                 }
             }
             invalidate();
-            if(Config.mapperEnabled) RemoteNavigation.getInstance().receiveGrid(this);
+            if (Config.mapperEnabled) RemoteNavigation.getInstance().receiveGrid(this);
             seq++;
         }
     }
@@ -528,7 +528,7 @@ public class MCache {
                 cached = grids.get(gc);
                 if (cached == null) {
                     request(gc);
-                    throw(new LoadingMap(gc));
+                    throw (new LoadingMap(gc));
                 }
             }
             return (cached);
@@ -549,9 +549,14 @@ public class MCache {
         return (g.gettilenosnow(tc.sub(g.ul)));
     }
 
-    public int getz(Coord tc) {
+    public double getfz(Coord tc) {
         Grid g = getgridt(tc);
         return (g.getz(tc.sub(g.ul)));
+    }
+
+    @Deprecated
+    public int getz(Coord tc) {
+        return ((int) Math.round(getfz(tc)));
     }
 
     public double getcz(double px, double py) {
@@ -559,16 +564,16 @@ public class MCache {
         Coord ul = new Coord(Utils.floordiv(px, tw), Utils.floordiv(py, th));
         double sx = Utils.floormod(px, tw) / tw;
         double sy = Utils.floormod(py, th) / th;
-        return(((1.0f - sy) * (((1.0f - sx) * getz(ul)) + (sx * getz(ul.add(1, 0))))) +
-                (sy * (((1.0f - sx) * getz(ul.add(0, 1))) + (sx * getz(ul.add(1, 1))))));
+        return (((1.0f - sy) * (((1.0f - sx) * getfz(ul)) + (sx * getfz(ul.add(1, 0))))) +
+                (sy * (((1.0f - sx) * getfz(ul.add(0, 1))) + (sx * getfz(ul.add(1, 1))))));
     }
 
     public double getcz(Coord2d pc) {
-        return(getcz(pc.x, pc.y));
+        return (getcz(pc.x, pc.y));
     }
 
     public float getcz(float px, float py) {
-        return((float)getcz((double)px, (double)py));
+        return ((float) getcz((double) px, (double) py));
     }
 
     public float getcz(Coord pc) {
@@ -576,7 +581,7 @@ public class MCache {
     }
 
     public Coord3f getzp(Coord2d pc) {
-        return(new Coord3f((float)pc.x, (float)pc.y, (float)getcz(pc)));
+        return (new Coord3f((float) pc.x, (float) pc.y, (float) getcz(pc)));
     }
 
     public int getol(Coord tc) {
@@ -613,7 +618,7 @@ public class MCache {
             synchronized (req) {
                 if (req.containsKey(c)) {
                     Grid g = grids.get(c);
-                    if(g == null) {
+                    if (g == null) {
                         grids.put(c, g = new Grid(c));
                         cached = null;
                     }
@@ -657,7 +662,7 @@ public class MCache {
                 fragbufs.remove(pktid);
             }
 
-	    /* Clean up old buffers */
+            /* Clean up old buffers */
             for (Iterator<Map.Entry<Integer, Defrag>> i = fragbufs.entrySet().iterator(); i.hasNext(); ) {
                 Map.Entry<Integer, Defrag> e = i.next();
                 Defrag old = e.getValue();
@@ -725,20 +730,20 @@ public class MCache {
     }
 
     public void trim(Coord ul, Coord lr) {
-        synchronized(grids) {
-            synchronized(req) {
-                for(Iterator<Map.Entry<Coord, Grid>> i = grids.entrySet().iterator(); i.hasNext();) {
+        synchronized (grids) {
+            synchronized (req) {
+                for (Iterator<Map.Entry<Coord, Grid>> i = grids.entrySet().iterator(); i.hasNext(); ) {
                     Map.Entry<Coord, Grid> e = i.next();
                     Coord gc = e.getKey();
                     Grid g = e.getValue();
-                    if((gc.x < ul.x) || (gc.y < ul.y) || (gc.x > lr.x) || (gc.y > lr.y)) {
+                    if ((gc.x < ul.x) || (gc.y < ul.y) || (gc.x > lr.x) || (gc.y > lr.y)) {
                         g.dispose();
                         i.remove();
                     }
                 }
-                for(Iterator<Coord> i = req.keySet().iterator(); i.hasNext();) {
+                for (Iterator<Coord> i = req.keySet().iterator(); i.hasNext(); ) {
                     Coord gc = i.next();
-                    if((gc.x < ul.x) || (gc.y < ul.y) || (gc.x > lr.x) || (gc.y > lr.y))
+                    if ((gc.x < ul.x) || (gc.y < ul.y) || (gc.x > lr.x) || (gc.y > lr.y))
                         i.remove();
                 }
                 cached = null;

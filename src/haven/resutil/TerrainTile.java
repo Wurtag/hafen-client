@@ -76,7 +76,7 @@ public class TerrainTile extends Tiler implements Tiler.MCons, Tiler.CTrans {
                     }
                 }
             }
-                
+
             setbase(buf1);
             for (int i = 0; i < sr; i++) {
                 float[][] buf2 = new float[var.length + 1][vs.l];
@@ -240,20 +240,20 @@ public class TerrainTile extends Tiler implements Tiler.MCons, Tiler.CTrans {
             GLState base = null;
             Collection<Var> var = new LinkedList<Var>();
             GLState commat = null;
-            for(Object rdesc : set.ta) {
-                Object[] desc = (Object[])rdesc;
-                String p = (String)desc[0];
-                if(p.equals("common-mat")) {
-                    if(desc[1] instanceof Integer) {
-                        int mid = (Integer)desc[1];
+            for (Object rdesc : set.ta) {
+                Object[] desc = (Object[]) rdesc;
+                String p = (String) desc[0];
+                if (p.equals("common-mat")) {
+                    if (desc[1] instanceof Integer) {
+                        int mid = (Integer) desc[1];
                         commat = res.layer(Material.Res.class, mid).get();
-                    } else if(desc[1] instanceof String) {
-                        String mnm = (String)desc[1];
-                        int mver = (Integer)desc[2];
-                        if(desc.length > 3) {
-                            commat = res.pool.load(mnm, mver).get().layer(Material.Res.class, (Integer)desc[3]).get();
+                    } else if (desc[1] instanceof String) {
+                        String mnm = (String) desc[1];
+                        int mver = (Integer) desc[2];
+                        if (desc.length > 3) {
+                            commat = res.pool.load(mnm, mver).get().layer(Material.Res.class, (Integer) desc[3]).get();
                         } else {
-                            commat = Material.fromres((Material.Owner)null, res.pool.load(mnm, mver).get(), Message.nil);
+                            commat = Material.fromres((Material.Owner) null, res.pool.load(mnm, mver).get(), Message.nil);
                         }
                     }
                 }
@@ -398,7 +398,7 @@ public class TerrainTile extends Tiler implements Tiler.MCons, Tiler.CTrans {
         public static class RFactory implements Tiler.Factory {
             public Tiler create(int id, Tileset set) {
                 TerrainTile base = new Factory().create(id, set);
-                int rth = 20;
+                double rth = 20;
                 GLState mat = null;
                 float texh = 11f;
                 for (Object rdesc : set.ta) {
@@ -410,12 +410,12 @@ public class TerrainTile extends Tiler implements Tiler.MCons, Tiler.CTrans {
                         if (desc.length > 3)
                             texh = (Float) desc[3];
                     } else if (p.equals("rthres")) {
-                        rth = (Integer) desc[1];
+                        rth = ((Number) desc[1]).doubleValue();
                     }
                 }
                 if (mat == null)
                     throw (new RuntimeException("Ridge-tiles must be given a ridge material, in " + set.getres().name));
-                return (new RidgeTile(base.id, base.noise, base.base, base.var, base.transset, rth, mat, texh));
+                return (new RidgeTile(base.id, base.noise, base.base, base.var, base.transset, (int) rth, mat, texh));
             }
         }
 
@@ -425,7 +425,7 @@ public class TerrainTile extends Tiler implements Tiler.MCons, Tiler.CTrans {
             this.rcons = new Ridges.TexCons(rmat, texh);
         }
 
-        public int breakz() {
+        public double breakz() {
             return (rth);
         }
 

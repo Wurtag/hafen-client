@@ -45,13 +45,13 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
     Map<Class<? extends GAttrib>, GAttrib> attr = new HashMap<Class<? extends GAttrib>, GAttrib>();
     public Collection<Overlay> ols = new LinkedList<Overlay>() {
         public boolean add(Overlay item) {
-	        /* XXX: Remove me once local code is changed to use addol(). */
-            if(glob.oc.getgob(id) != null) {
+            /* XXX: Remove me once local code is changed to use addol(). */
+            if (glob.oc.getgob(id) != null) {
                 // FIXME: extend ols with a method for adding sprites without triggering changed.
                 if (item.id != Sprite.GROWTH_STAGE_ID && item != animalradius)
                     glob.oc.changed(Gob.this);
             }
-            return(super.add(item));
+            return (super.add(item));
         }
     };
 
@@ -138,7 +138,7 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
         }
 
         public Object staticp() {
-            return((spr == null)?null:spr.staticp());
+            return ((spr == null) ? null : spr.staticp());
         }
     }
 
@@ -188,9 +188,9 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
         }
 
         public static class FactMaker implements Resource.PublishedCode.Instancer {
-            public Factory make(Class<?> cl) throws InstantiationException, IllegalAccessException {
+            public Factory make(Class<?> cl) {
                 if (Factory.class.isAssignableFrom(cl))
-                    return (cl.asSubclass(Factory.class).newInstance());
+                    return (Utils.construct(cl.asSubclass(Factory.class)));
                 if (ResAttr.class.isAssignableFrom(cl)) {
                     try {
                         final java.lang.reflect.Constructor<? extends ResAttr> cons = cl.asSubclass(ResAttr.class).getConstructor(Gob.class, Message.class);
@@ -207,8 +207,11 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
         }
     }
 
-    public static class Static {}
-    public static class SemiStatic {}
+    public static class Static {
+    }
+
+    public static class SemiStatic {
+    }
 
     public Gob(Glob glob, Coord2d c, long id, int frame) {
         this.glob = glob;
@@ -250,6 +253,7 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
     public void addol(Overlay ol) {
         ols.add(ol);
     }
+
     public void addol(Sprite ol) {
         addol(new Overlay(ol));
     }
@@ -283,8 +287,8 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
             m.move(c);
         this.rc = c;
         if (isplayer()) {
-            if(Config.mapperEnabled) Navigation.setPlayerCoordinates(c);
-            if(Config.vendanMapv4) MappingClient.getInstance().CheckGridCoord(c);
+            if (Config.mapperEnabled) Navigation.setPlayerCoordinates(c);
+            if (Config.vendanMapv4) MappingClient.getInstance().CheckGridCoord(c);
         }
         this.a = a;
     }
@@ -299,7 +303,7 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
     }
 
     public Coord3f getrc() {
-        return(glob.map.getzp(rc));
+        return (glob.map.getzp(rc));
     }
 
     public double geta() {
@@ -394,8 +398,8 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
             i.remove();
             upd = true;
         }
-        if(upd) {
-            if(glob.oc.getgob(id) != null)
+        if (upd) {
+            if (glob.oc.getgob(id) != null)
                 glob.oc.changed(this);
         }
     }
@@ -461,7 +465,7 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
             type = Type.PLAYER;
         else if (name.startsWith("gfx/terobjs/bumlings"))
             type = Type.BOULDER;
-        else  if (name.endsWith("vehicle/bram") || name.endsWith("vehicle/catapult"))
+        else if (name.endsWith("vehicle/bram") || name.endsWith("vehicle/catapult"))
             type = Type.SIEGE_MACHINE;
         else if (name.endsWith("/bear"))
             type = Type.BEAR;
@@ -635,7 +639,7 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
                 Gob followGob = null;
                 Moving moving = getattr(Moving.class);
                 if (moving != null && moving instanceof Following)
-                    followGob = ((Following)moving).tgt();
+                    followGob = ((Following) moving).tgt();
 
                 for (Composited.ED ed : ((Composite) d).comp.cequ) {
                     try {
@@ -669,38 +673,45 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
 
     private static final Object DYNAMIC = new Object();
     private Object seq = null;
+
     public Object staticp() {
-        if(seq == null) {
+        if (seq == null) {
             int rs = 0;
-            for(GAttrib attr : attr.values()) {
+            for (GAttrib attr : attr.values()) {
                 Object as = attr.staticp();
-                if(as == Rendered.CONSTANS) {
-                } else if(as instanceof Static) {
-                } else if(as == SemiStatic.class) {
+                if (as == Rendered.CONSTANS) {
+                } else if (as instanceof Static) {
+                } else if (as == SemiStatic.class) {
                     rs = Math.max(rs, 1);
                 } else {
                     rs = 2;
                     break;
                 }
             }
-            for(Overlay ol : ols) {
+            for (Overlay ol : ols) {
                 Object os = ol.staticp();
-                if(os == Rendered.CONSTANS) {
-                } else if(os instanceof Static) {
-                } else if(os == SemiStatic.class) {
+                if (os == Rendered.CONSTANS) {
+                } else if (os instanceof Static) {
+                } else if (os == SemiStatic.class) {
                     rs = Math.max(rs, 1);
                 } else {
                     rs = 2;
                     break;
                 }
             }
-            switch(rs) {
-                case 0: seq = new Static(); break;
-                case 1: seq = new SemiStatic(); break;
-                default: seq = null; break;
+            switch (rs) {
+                case 0:
+                    seq = new Static();
+                    break;
+                case 1:
+                    seq = new SemiStatic();
+                    break;
+                default:
+                    seq = null;
+                    break;
             }
         }
-        return((seq == DYNAMIC)?null:seq);
+        return ((seq == DYNAMIC) ? null : seq);
     }
 
     void changed() {
@@ -721,10 +732,15 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
     private static final ClassResolver<Gob> ctxr = new ClassResolver<Gob>()
             .add(Glob.class, g -> g.glob)
             .add(Session.class, g -> g.glob.sess);
-    public <T> T context(Class<T> cl) {return(ctxr.context(cl, this));}
+
+    public <T> T context(Class<T> cl) {
+        return (ctxr.context(cl, this));
+    }
 
     @Deprecated
-    public Glob glob() {return(context(Glob.class));}
+    public Glob glob() {
+        return (context(Glob.class));
+    }
 
     /* Because generic functions are too nice a thing for Java. */
     public double getv() {

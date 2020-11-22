@@ -26,6 +26,7 @@
 
 package haven;
 
+import java.util.*;
 import java.io.*;
 import java.net.*;
 import java.security.*;
@@ -73,8 +74,8 @@ public class SslHelper {
             } catch (KeyStoreException e) {
                 throw (new RuntimeException(e));
             } catch (UnrecoverableKeyException e) {
-        /* The key should be recoverable at this stage, since
-         * it was loaded successfully. */
+                /* The key should be recoverable at this stage, since
+                 * it was loaded successfully. */
                 throw (new RuntimeException(e));
             } catch (KeyManagementException e) {
                 throw (new RuntimeException(e));
@@ -99,9 +100,9 @@ public class SslHelper {
         try {
             trusted.setCertificateEntry("cert-" + tserial++, cert);
         } catch (KeyStoreException e) {
-	    /* The keystore should have been initialized and should
-	     * not have the generated alias, so this should not
-	     * happen. */
+            /* The keystore should have been initialized and should
+             * not have the generated alias, so this should not
+             * happen. */
             throw (new RuntimeException(e));
         }
     }
@@ -109,6 +110,16 @@ public class SslHelper {
     public static Certificate loadX509(InputStream in) throws IOException, CertificateException {
         CertificateFactory fac = CertificateFactory.getInstance("X.509");
         return (fac.generateCertificate(in));
+    }
+
+    public static Collection<? extends Certificate> loadX509s(InputStream in) throws IOException, CertificateException {
+        CertificateFactory fac = CertificateFactory.getInstance("X.509");
+        return (fac.generateCertificates(in));
+    }
+
+    public void trust(InputStream in) throws IOException, CertificateException {
+        for (Certificate cert : loadX509s(in))
+            trust(cert);
     }
 
     public synchronized void loadCredsPkcs12(InputStream in, char[] pw) throws IOException, CertificateException {

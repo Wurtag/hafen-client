@@ -203,7 +203,7 @@ public class LocalMiniMap extends Widget {
 
                     String basename = res.basename();
                     GobIcon icon = gob.getattr(GobIcon.class);
-                    if (icon != null || Config.additonalicons.containsKey(res.name)) {
+                    if ((icon != null || Config.additonalicons.containsKey(res.name)) && gob.type!=Gob.Type.PLAYER) {
                         if (Gob.Type.MOB.has(gob.type) || gob.type == Gob.Type.BAT) {
                             dangergobs.add(0, gob);
                         } else {
@@ -214,13 +214,8 @@ public class LocalMiniMap extends Widget {
                                     tex = gob.knocked == Boolean.TRUE ? icon.texgrey() : icon.tex();
                                 else
                                     tex = Config.additonalicons.get(res.name);
-								if(tex!=null){
-									try{
-										g.image(tex, p2c(gob.rc).sub(tex.sz().mul(iconZoom).div(2)).add(delta), tex.dim.mul(iconZoom));
-									}
-									catch(Exception e){
-										System.out.println("Error: "+e);
-									}
+								if(gob.type!=null){
+									g.image(tex, p2c(gob.rc).sub(tex.sz().mul(iconZoom).div(2)).add(delta), tex.dim.mul(iconZoom));
 								}
                             }
                         }
@@ -228,7 +223,7 @@ public class LocalMiniMap extends Widget {
                         dangergobs.add(gob);
                         continue;
                     }
-
+					
                     if (gob.type == Gob.Type.BOULDER) {
                         CheckListboxItem itm = Config.boulders.get(basename.substring(0, basename.length() - 1));
                         if (itm != null && itm.selected)
@@ -246,6 +241,7 @@ public class LocalMiniMap extends Widget {
                     if (sgobs.contains(gob.id))
                         continue;
 
+					KinInfo kininfo = gob.getattr(KinInfo.class);
                     if (gob.type == Gob.Type.FU_YE_CURIO) {
                         sgobs.add(gob.id);
                         Audio.play(foragablesfx, Config.alarmonforagablesvol);
@@ -286,6 +282,7 @@ public class LocalMiniMap extends Widget {
 
             for (Gob gob : dangergobs) {
                 try {
+					
                     if (gob.type == Gob.Type.PLAYER) {
                         if (ui.sess.glob.party.memb.containsKey(gob.id))
                             continue;
@@ -300,12 +297,11 @@ public class LocalMiniMap extends Widget {
                             g.fcircle(pc.x, pc.y, 4, 16);
                             g.chcolor();
                         }
-
                         if (sgobs.contains(gob.id))
                             continue;
-
                         boolean enemy = false;
-                        if (Config.alarmunknown && kininfo == null) {
+						
+                        if (Config.alarmunknown && ((kininfo != null && kininfo.group == 0) || kininfo==null)) {
                             sgobs.add(gob.id);
                             Audio.play(alarmplayersfx, Config.alarmunknownvol);
                             enemy = true;
@@ -340,7 +336,7 @@ public class LocalMiniMap extends Widget {
             for (Gob gob : oc) {
                 try {
                     GobIcon icon = gob.getattr(GobIcon.class);
-                    if (icon != null && icon.tex()!=null) {
+                    if (icon != null) {
                         Coord gc = p2c(gob.rc);
                         Coord sz = icon.tex().sz();
                         if (c.isect(gc.sub(sz.div(2)), sz)) {

@@ -47,23 +47,28 @@ public abstract class Sprite implements Rendered {
 
     public interface Owner extends OwnerContext {
         public Random mkrandoom();
+
         public Resource getres();
+
         @Deprecated
-        public default Glob glob() {return(context(Glob.class));}
+        public default Glob glob() {
+            return (context(Glob.class));
+        }
     }
 
     public static class FactMaker implements Resource.PublishedCode.Instancer {
-        public Factory make(Class<?> cl) throws InstantiationException, IllegalAccessException {
+        public Factory make(Class<?> cl) {
             if (Factory.class.isAssignableFrom(cl))
-                return (cl.asSubclass(Factory.class).newInstance());
+                return (Utils.construct(cl.asSubclass(Factory.class)));
             try {
                 Function<Object[], Sprite> make = Utils.smthfun(cl, "mksprite", Sprite.class, Owner.class, Resource.class, Message.class);
-                return(new Factory() {
+                return (new Factory() {
                     public Sprite create(Owner owner, Resource res, Message sdt) {
-                        return(make.apply(new Object[] {owner, res, sdt}));
+                        return (make.apply(new Object[]{owner, res, sdt}));
                     }
                 });
-            } catch(NoSuchMethodException e) {}
+            } catch (NoSuchMethodException e) {
+            }
             if (Sprite.class.isAssignableFrom(cl))
                 return (mkdynfact(cl.asSubclass(Sprite.class)));
             return (null);
