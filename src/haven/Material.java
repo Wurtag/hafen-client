@@ -372,14 +372,17 @@ public class Material extends GLState {
                     ret.left.add(new Res.Resolver() {
                         public void resolve(Collection<GLState> buf) {
                             Indir<Resource> tres = res.pool.load(nm, ver);
-                            for (Resource.Image img : tres.get().layers(Resource.imgc)) {
-                                if (img.id == tid) {
-                                    buf.add(img.tex().draw());
-                                    buf.add(img.tex().clip());
-                                    return;
+                            if(tres.get()!=null){
+                                for (Resource.Image img : tres.get().layers(Resource.imgc)) {
+                                    if (img.id == tid) {
+                                        buf.add(img.tex().draw());
+                                        buf.add(img.tex().clip());
+                                        return;
+                                    }
                                 }
+                                //throw (new RuntimeException(String.format("Specified texture %d for %s not found in %s", tid, res, tres)));
                             }
-                            throw (new RuntimeException(String.format("Specified texture %d for %s not found in %s", tid, res, tres)));
+                            return;
                         }
                     });
                 } else if (thing == "light") {
@@ -391,10 +394,10 @@ public class Material extends GLState {
                     } else if (l.equals("n")) {
                         light = null;
                     } else {
-                        throw (new Resource.LoadException("Unknown lighting type: " + thing, res));
+                        //throw (new Resource.LoadException("Unknown lighting type: " + thing, res));
                     }
                 } else {
-                    throw (new Resource.LoadException("Unknown material part: " + thing, res));
+                    //throw (new Resource.LoadException("Unknown material part: " + thing, res));
                 }
             }
             if (light != null)
@@ -417,16 +420,18 @@ public class Material extends GLState {
             }
             return (new Res.Resolver() {
                 public void resolve(Collection<GLState> buf) {
-                    if (id >= 0) {
-                        Res mat = lres.get().layer(Res.class, id);
-                        if (mat == null)
-                            throw (new Resource.LoadException("No such material in " + lres.get() + ": " + id, res));
-                        buf.add(mat.get());
-                    } else {
-                        Material mat = fromres((Owner) null, lres.get(), Message.nil);
-                        if (mat == null)
-                            throw (new Resource.LoadException("No material in " + lres.get(), res));
-                        buf.add(mat);
+                    if(lres.get()!=null){
+                        if (id >= 0) {
+                            Res mat = lres.get().layer(Res.class, id);
+                            if (mat == null)
+                                throw (new Resource.LoadException("No such material in " + lres.get() + ": " + id, res));
+                            buf.add(mat.get());
+                        } else {
+                            Material mat = fromres((Owner) null, lres.get(), Message.nil);
+                            if (mat == null)
+                                throw (new Resource.LoadException("No material in " + lres.get(), res));
+                            buf.add(mat);
+                        }
                     }
                 }
             });

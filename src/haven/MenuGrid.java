@@ -249,19 +249,24 @@ public class MenuGrid extends Widget implements KeyBinding.Bindable {
             Pagina pag = iter.next();
             iter.remove();
             try {
-                AButton ad = pag.act();
-                if (ad == null)
-                    throw(new RuntimeException("Pagina in " + pag.res + " lacks action"));
-                Pagina parent = paginafor(ad.parent);
-                if ((pag.newp != 0) && (parent != null) && (parent.newp == 0)) {
-                    parent.newp = 2;
-                    parent.fstart = (parent.fstart == 0) ? pag.fstart : Math.min(parent.fstart, pag.fstart);
+                if(pag.res()!=null){
+                    AButton ad = pag.act();
+                    if (ad == null)
+                        throw(new RuntimeException("Pagina in " + pag.res + " lacks action"));
+                    Pagina parent = paginafor(ad.parent);
+                    if ((pag.newp != 0) && (parent != null) && (parent.newp == 0)) {
+                        parent.newp = 2;
+                        parent.fstart = (parent.fstart == 0) ? pag.fstart : Math.min(parent.fstart, pag.fstart);
+                    }
+                    if (parent == p)
+                        buf.add(pag.button());
+                    else if ((parent != null) && !close.contains(parent) && !open.contains(parent))
+                        open.add(parent);
+                    close.add(pag);
                 }
-                if (parent == p)
-                    buf.add(pag.button());
-                else if ((parent != null) && !close.contains(parent) && !open.contains(parent))
-                    open.add(parent);
-                close.add(pag);
+                else{
+                    ret = false;
+                }
             } catch (Loading e) {
                 ret = false;
             }
