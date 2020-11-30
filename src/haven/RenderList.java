@@ -167,7 +167,9 @@ public class RenderList {
             curref.set(this);
         try {
             curp = s;
-            s.d = r.setup(this);
+			if(r!=null){
+				s.d = r.setup(this);
+			}
         } finally {
             if((curp = pp) == null)
                 curref.remove();
@@ -427,7 +429,9 @@ public class RenderList {
     public boolean ignload = true;
     protected void render(GOut g, Rendered r) {
         try {
-            r.draw(g);
+			if(r!=null){
+				r.draw(g);
+			}
         } catch(RLoad l) {
             if(ignload)
                 return;

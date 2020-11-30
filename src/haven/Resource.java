@@ -401,8 +401,9 @@ public class Resource implements Serializable {
                     boostprio(1);
                     throw (new Loading(this));
                 }
-                //if (error != null)
-                    //throw (new RuntimeException("Delayed error in resource " + name + " (v" + ver + "), from " + error.src, error));
+                if (error != null)
+					System.out.println("Delayed error in resource [" + name + "] (v" + ver + "), from " + error.src);
+                    //throw (new RuntimeException("Delayed error in resource [" + name + "] (v" + ver + "), from " + error.src, error));
                 return (res);
             }
 

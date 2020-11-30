@@ -203,7 +203,12 @@ public class Widget {
             Indir<Resource> res = Resource.remote().load(name, ver);
             while (true) {
                 try {
-                    return (res.get().getcode(Factory.class, true));
+					if(res.get()!=null){
+						return (res.get().getcode(Factory.class, true));
+					}
+					else{
+						return null;
+					}
                 } catch (Loading l) {
                     l.waitfor();
                 }

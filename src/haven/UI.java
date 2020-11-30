@@ -158,46 +158,51 @@ public class UI {
             // use custom study inventory
             type = "inv-study";
         }
+		try{
+			Widget.Factory f = Widget.gettype2(type);
+			if(f!=null){
+				synchronized(this) {
+					if (parent == beltWndId)
+						f = Widget.gettype2("inv-belt");
 
-        Widget.Factory f = Widget.gettype2(type);
-        synchronized(this) {
-            if (parent == beltWndId)
-                f = Widget.gettype2("inv-belt");
+					Widget wdg = f.create(this, cargs);
+					wdg.attach(this);
+					if (parent != 65535) {
+						Widget pwdg = widgets.get(parent);
+						if(pwdg == null)
+							throw(new UIException("Null parent widget " + parent + " for " + id, type, cargs));
+						pwdg.addchild(wdg, pargs);
 
-            Widget wdg = f.create(this, cargs);
-            wdg.attach(this);
-            if (parent != 65535) {
-                Widget pwdg = widgets.get(parent);
-                if(pwdg == null)
-                    throw(new UIException("Null parent widget " + parent + " for " + id, type, cargs));
-                pwdg.addchild(wdg, pargs);
-
-                if (pwdg instanceof Window) {
-                    // here be horrors... FIXME
-                    GameUI gui = null;
-                    for (Widget w : rwidgets.keySet()) {
-                        if (w instanceof GameUI) {
-                            gui = (GameUI) w;
-                            break;
-                        }
-                    }
-                    processWindowContent(parent, gui, (Window) pwdg, wdg);
-                }
-            } else {
-                if (wdg instanceof Window) {
-                    // here be horrors... FIXME
-                    GameUI gui = null;
-                    for (Widget w : rwidgets.keySet()) {
-                        if (w instanceof GameUI) {
-                            gui = (GameUI) w;
-                            break;
-                        }
-                    }
-                    processWindowCreation(id, gui, (Window) wdg);
-                }
-            }
-            bind(wdg, id);
-        }
+						if (pwdg instanceof Window) {
+							// here be horrors... FIXME
+							GameUI gui = null;
+							for (Widget w : rwidgets.keySet()) {
+								if (w instanceof GameUI) {
+									gui = (GameUI) w;
+									break;
+								}
+							}
+							processWindowContent(parent, gui, (Window) pwdg, wdg);
+						}
+					} else {
+						if (wdg instanceof Window) {
+							// here be horrors... FIXME
+							GameUI gui = null;
+							for (Widget w : rwidgets.keySet()) {
+								if (w instanceof GameUI) {
+									gui = (GameUI) w;
+									break;
+								}
+							}
+							processWindowCreation(id, gui, (Window) wdg);
+						}
+					}
+					bind(wdg, id);
+				}
+			}
+		} catch(Exception e){
+			System.out.println("Error: "+e);
+		}
     }
 
     public void addwidget(int id, int parent, Object[] pargs) {
@@ -358,7 +363,8 @@ public class UI {
             if (wdg != null)
                 wdg.uimsg(msg.intern(), args);
             else
-                throw (new UIException("Uimsg to non-existent widget " + id, msg, args));
+				System.out.println("Uimsg to non-existent widget " + id);
+                //throw (new UIException("Uimsg to non-existent widget " + id, msg, args));
         }
     }
 

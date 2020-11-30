@@ -249,7 +249,7 @@ public class MenuGrid extends Widget implements KeyBinding.Bindable {
             Pagina pag = iter.next();
             iter.remove();
             try {
-                if(pag.res()!=null){
+                if(pag!=null && pag.res()!=null){
                     AButton ad = pag.act();
                     if (ad == null)
                         throw(new RuntimeException("Pagina in " + pag.res + " lacks action"));
