@@ -225,7 +225,7 @@ public class RenderList {
             throw(new RuntimeException("Tried to set up relative slot with no parent"));
         Object seq = null;
         Buffer cos = null;
-        if((t == null) && (curp.statroot == null)) {
+        if((t == null) && (curp.statroot == null) && r!=null) {
             seq = r.staticp();
             curp.cs.copye(cos = new Buffer(cfg), GLState.Slot.Type.SYS);
             Cached c;

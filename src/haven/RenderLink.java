@@ -106,7 +106,7 @@ public interface RenderLink {
                     Rendered res = null;
 
                     public Rendered make() {
-                        if (res == null && lres.get()!=null) {
+                        if (res == null && lres!=null && lres.get()!=null) {
                             ArrayList<Rendered> cl = new ArrayList<Rendered>();
                             for (FastMesh.MeshRes mr : lres.get().layers(FastMesh.MeshRes.class)) {
                                 if (((meshid >= 0) && (mr.id < 0)) || ((mr.id & meshmask) == meshid))
