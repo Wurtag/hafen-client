@@ -248,7 +248,7 @@ public class Composited implements Rendered, MapView.Clickable {
             this.desc = ed.clone();
             this.id = desc.id;
             GLState bt = null;
-            if (bt == null) {
+            if (bt == null && ed.res!=null && ed.res.res!=null) {
                 Skeleton.BoneOffset bo = ed.res.res.get().layer(Skeleton.BoneOffset.class, ed.at);
                 if (bo != null)
                     bt = bo.forpose(pose);
