@@ -34,10 +34,12 @@ public class AudioSprite {
     public static List<Resource.Audio> clips(Resource res, String id)
     {
         List<Resource.Audio> cl = new ArrayList<Resource.Audio>();
-        for (Resource.Audio clip : res.layers(Resource.audio)) {
-            if (clip.id == id)
-                cl.add(clip);
-        }
+		if(res!=null){
+			for (Resource.Audio clip : res.layers(Resource.audio)) {
+				if (clip.id == id)
+					cl.add(clip);
+			}
+		}
         return(cl);
     }
 
@@ -65,7 +67,7 @@ public class AudioSprite {
                     return (new RepeatSprite(owner, res, randoom(res, "beg"), clips, randoom(res, "end")));
             }
             {
-                if ((res.layer(Resource.audio, "amb") != null) || (res.layer(ClipAmbiance.Desc.class) != null))
+                if (res!=null && ((res.layer(Resource.audio, "amb") != null) || (res.layer(ClipAmbiance.Desc.class) != null)))
                     return (new Ambience(owner, res));
             }
             return (null);

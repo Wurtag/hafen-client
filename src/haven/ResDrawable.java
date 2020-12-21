@@ -52,7 +52,7 @@ public class ResDrawable extends Drawable {
         if (spr != null)
             return;
         Resource res = this.res.get();
-        if (gob.type == null)
+        if (gob.type == null && res!=null)
             gob.determineType(res.name);
 
         MessageBuf stdCopy = sdt.clone();

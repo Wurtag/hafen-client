@@ -37,9 +37,11 @@ public class SpriteLink extends Resource.Layer {
 
     public static final Factory sfact = new Factory() {
         public Sprite create(Owner owner, Resource res, Message sdt) {
-            SpriteLink link = res.layer(SpriteLink.class);
-            if (link != null)
-                return (link.f.create(owner, res, sdt));
+			if(res!=null){
+				SpriteLink link = res.layer(SpriteLink.class);
+				if (link != null)
+					return (link.f.create(owner, res, sdt));
+			}
             return (null);
         }
     };

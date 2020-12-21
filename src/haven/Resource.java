@@ -1075,6 +1075,7 @@ public class Resource implements Serializable {
 
         public Pagina(Message buf) {
             String text = new String(buf.bytes(), Utils.utf8);
+			//System.out.println("Resource.Pagina L1078: "+text);
             this.text = Resource.getLocString(Resource.BUNDLE_PAGINA, super.getres(), text);
         }
 
@@ -1105,7 +1106,7 @@ public class Resource implements Serializable {
 
             origName = buf.string();
             name = Resource.getLocString(Resource.BUNDLE_ACTION, super.getres(), origName);
-
+			//System.out.println("Resource.AButton L1109: "+name+" / ("+origName+")");
             buf.string(); /* Prerequisite skill */
             hk = (char) buf.uint16();
             ad = new String[buf.uint16()];

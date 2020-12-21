@@ -52,9 +52,12 @@ public class SkelSprite extends Sprite implements Gob.Overlay.CUpd, Skeleton.Has
 
     public static final Factory fact = new Factory() {
         public Sprite create(Owner owner, Resource res, Message sdt) {
-            if (res.layer(Skeleton.Res.class) == null)
+			if(res!=null){
+				if (res.layer(Skeleton.Res.class) == null)
                 return (null);
-            return (new SkelSprite(owner, res, sdt));
+			return (new SkelSprite(owner, res, sdt));
+			}
+            return (null);
         }
     };
 

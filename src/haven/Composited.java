@@ -217,7 +217,8 @@ public class Composited implements Rendered, MapView.Clickable {
         }
 
         public void tick(int dt) {
-            spr.tick(dt);
+			if(spr!=null)
+				spr.tick(dt);
         }
     }
 
@@ -248,7 +249,7 @@ public class Composited implements Rendered, MapView.Clickable {
             this.desc = ed.clone();
             this.id = desc.id;
             GLState bt = null;
-            if (bt == null && ed.res!=null && ed.res.res!=null) {
+            if (bt == null && ed.res!=null && ed.res.res!=null && ed.res.res.get()!=null) {
                 Skeleton.BoneOffset bo = ed.res.res.get().layer(Skeleton.BoneOffset.class, ed.at);
                 if (bo != null)
                     bt = bo.forpose(pose);
@@ -263,8 +264,9 @@ public class Composited implements Rendered, MapView.Clickable {
                 if (bone != null)
                     bt = pose.bonetrans(bone.idx);
             }
-            if ((bt == null) && !ed.at.equals(""))
-                throw (new RuntimeException("Transformation " + ed.at + " for equipment " + ed.res + " on skeleton " + skel + " could not be resolved"));
+			
+            //if ((bt == null) && !ed.at.equals(""))
+                //throw (new RuntimeException("Transformation " + ed.at + " for equipment " + ed.res + " on skeleton " + skel + " could not be resolved"));
             if ((ed.off.x != 0.0f) || (ed.off.y != 0.0f) || (ed.off.z != 0.0f))
                 this.et = GLState.compose(bt, Location.xlate(ed.off));
             else

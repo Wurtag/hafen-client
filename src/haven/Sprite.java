@@ -134,16 +134,20 @@ public abstract class Sprite implements Rendered {
 
     public static Sprite create(Owner owner, Resource res, Message sdt) {
         {
-            Factory f = res.getcode(Factory.class, false);
-            if (f != null)
-                return (f.create(owner, res, sdt));
+			if(res!=null){
+				Factory f = res.getcode(Factory.class, false);
+				if (f != null)
+					return (f.create(owner, res, sdt));
+			}
         }
         for (Factory f : factories) {
             Sprite ret = f.create(owner, res, sdt);
             if (ret != null)
                 return (ret);
         }
-        throw (new ResourceException("Does not know how to draw resource " + res.name, res));
+		System.out.println("Does not know how to draw resource");
+		return (null);
+        //throw (new ResourceException("Does not know how to draw resource " + res.name, res));
     }
 
     public void draw(GOut g) {

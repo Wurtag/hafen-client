@@ -253,6 +253,10 @@ public class MenuGrid extends Widget implements KeyBinding.Bindable {
                     AButton ad = pag.act();
                     if (ad == null)
                         throw(new RuntimeException("Pagina in " + pag.res + " lacks action"));
+					//System.out.println("MenuGrid L254: "+ad.name);
+					/*if("Cattle Roster".equals(ad.name)){
+						continue;
+					}*/
                     Pagina parent = paginafor(ad.parent);
                     if ((pag.newp != 0) && (parent != null) && (parent.newp == 0)) {
                         parent.newp = 2;

@@ -232,6 +232,7 @@ public abstract class ItemInfo {
         public Pagina(Owner owner, String str) {
             super(owner);
             this.str = str;
+			System.out.println("ItemInfo.Pagina L235: "+str);
         }
 
         public BufferedImage tipimg(int w) {
